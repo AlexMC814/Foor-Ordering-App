@@ -4,12 +4,14 @@ import { randomUUID } from "expo-crypto";
 
 export interface ICartProvider {
   items: ICartItem[];
+  total: number;
   addItem: (product: IProduct, size: ICartItem["size"]) => void;
   updateQuantity: (itemId: string, amount: -1 | 1) => void;
 }
 
 const CartContext = createContext<ICartProvider>({
   items: [],
+  total: 0,
   addItem: () => {},
   updateQuantity: () => {},
 });
@@ -18,12 +20,11 @@ const CartProvider = ({ children }: PropsWithChildren) => {
   const [items, setItems] = useState<ICartItem[]>([]);
 
   const addItem = (product: IProduct, size: ICartItem["size"]) => {
-    // TODO: if already in cart increment quantity
     const existingItem = items.find(
       (item) => item.product === product && item.size === size
     );
 
-    if(existingItem) {
+    if (existingItem) {
       updateQuantity(existingItem.id, 1);
       return;
     }
@@ -39,7 +40,6 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     setItems([newCartItem, ...items]);
   };
 
-  //   TODO: Update quantity
   const updateQuantity = (itemId: string, amount: -1 | 1) => {
     const updatedItems: ICartItem[] = items
       .map((item) =>
@@ -52,10 +52,16 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     setItems(updatedItems);
   };
 
+  const total = items.reduce(
+    (sum, item) => (sum += item.product.price * item.quantity),
+    0
+  );
+
   return (
     <CartContext.Provider
       value={{
         items,
+        total,
         addItem,
         updateQuantity,
       }}

@@ -1,19 +1,13 @@
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
 import Colors from "../constants/Colors";
 import { Link } from "expo-router";
-
-export interface IProduct {
-  id: number;
-  name: string;
-  image: string | null;
-  price: number;
-}
+import { IProduct } from "@/src/types/CartItem";
 
 export interface ProductListItemProps {
   product: IProduct;
 }
 
-export const defaultPizzaIMage =
+export const defaultPizzaImage =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
 const ProductListItem = ({ product }: ProductListItemProps) => {
@@ -23,7 +17,7 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
         <Image
           style={styles.image}
           resizeMode="contain"
-          source={{ uri: product.image || defaultPizzaIMage }}
+          source={{ uri: product.image || defaultPizzaImage }}
         />
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.price}>${product.price}</Text>

@@ -4,18 +4,12 @@ import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import products from "@/assets/data/products";
 import { defaultPizzaImage } from "@/src/components/ProductListItem";
 import Button from "@/src/components/Button";
-import { useCart } from "@/src/providers/CartProvider";
-import { PizzaSize } from "@/food-ordering-asset-bundle/Food Ordering Asset bundle/types";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
-
-const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
 
 const ProductDetailsScreen = () => {
   const { id } = useLocalSearchParams();
   const product = products.find((product) => product.id.toString() === id);
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
-  const { addItem } = useCart();
   const router = useRouter();
 
   if (!product) {

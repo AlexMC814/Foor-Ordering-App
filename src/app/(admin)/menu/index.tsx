@@ -1,6 +1,6 @@
 import { ScrollView, FlatList } from "react-native";
 import products from "@/assets/data/products";
-import ProductListItem, { IProduct } from "@/src/components/ProductListItem";
+import ProductListItem from "@/src/components/ProductListItem";
 
 export default function MenuScreen() {
   return (

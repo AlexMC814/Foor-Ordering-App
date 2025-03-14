@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import React from "react";
-import { IOrder } from "@models/Order";
+import { Order } from "@models/Order";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import { Link, useSegments } from "expo-router";
@@ -8,7 +8,7 @@ import { Link, useSegments } from "expo-router";
 dayjs.extend(relativeTime);
 
 type OrderListItemProps = {
-  order: IOrder;
+  order: Order;
 };
 
 const OrderListItem = ({ order }: OrderListItemProps) => {

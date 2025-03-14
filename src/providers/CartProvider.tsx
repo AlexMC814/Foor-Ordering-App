@@ -1,12 +1,17 @@
-import { createContext, PropsWithChildren, useContext, useState } from "react";
-import { ICartItem, IProduct } from "@/src/types/CartItem";
 import { randomUUID } from "expo-crypto";
+import { ICartItem, Product } from "@models/CartItem";
+import { createContext, PropsWithChildren, useContext, useState } from "react";
+import { useInsertOrder } from "../api/orders";
+import { useRouter } from "expo-router";
+import { Tables } from "../types/tables";
+import { useInsertOrderItems } from "@api/order-items";
 
 export interface ICartProvider {
   items: ICartItem[];
   total: number;
-  addItem: (product: IProduct, size: ICartItem["size"]) => void;
+  addItem: (product: Product, size: ICartItem["size"]) => void;
   updateQuantity: (itemId: string, amount: -1 | 1) => void;
+  checkout: () => void;
 }
 
 const CartContext = createContext<ICartProvider>({
@@ -14,12 +19,16 @@ const CartContext = createContext<ICartProvider>({
   total: 0,
   addItem: () => {},
   updateQuantity: () => {},
+  checkout: () => {},
 });
 
 const CartProvider = ({ children }: PropsWithChildren) => {
   const [items, setItems] = useState<ICartItem[]>([]);
+  const { mutate: insertOrder } = useInsertOrder();
+  const { mutate: insertOrderItems } = useInsertOrderItems();
+  const router = useRouter();
 
-  const addItem = (product: IProduct, size: ICartItem["size"]) => {
+  const addItem = (product: Product, size: ICartItem["size"]) => {
     const existingItem = items.find(
       (item) => item.product === product && item.size === size
     );
@@ -57,6 +66,35 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     0
   );
 
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  const checkout = () => {
+    insertOrder(
+      { total },
+      {
+        onSuccess: saveOrderItems,
+      }
+    );
+  };
+
+  const saveOrderItems = (order: Tables<"orders">) => {
+    const orderItems = items.map((cartItem) => ({
+      order_id: order.id,
+      product_id: cartItem.product.id,
+      quantity: cartItem.quantity,
+      size: cartItem.size,
+    }));
+
+    insertOrderItems(orderItems, {
+      onSuccess() {
+        clearCart();
+        router.push(`/(user)/orders/${order.id}`);
+      },
+    });
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -64,6 +102,7 @@ const CartProvider = ({ children }: PropsWithChildren) => {
         total,
         addItem,
         updateQuantity,
+        checkout,
       }}
     >
       {children}

@@ -1,10 +1,11 @@
 import { randomUUID } from "expo-crypto";
 import { ICartItem, Product } from "@models/CartItem";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
-import { useInsertOrder } from "../api/orders";
+import { useInsertOrder } from "@api/orders";
 import { useRouter } from "expo-router";
-import { Tables } from "../types/tables";
+import { Tables } from "@models/tables";
 import { useInsertOrderItems } from "@api/order-items";
+import { initializePaymentSheet, openPaymentSheet } from "@lib/stripe";
 
 export interface ICartProvider {
   items: ICartItem[];
@@ -70,7 +71,14 @@ const CartProvider = ({ children }: PropsWithChildren) => {
     setItems([]);
   };
 
-  const checkout = () => {
+  const checkout = async () => {
+    await initializePaymentSheet(Math.floor(total * 100));
+    const payed = await openPaymentSheet();
+
+    if (!payed) {
+      return;
+    }
+
     insertOrder(
       { total },
       {

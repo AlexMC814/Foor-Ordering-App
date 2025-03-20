@@ -1,8 +1,10 @@
+import { randomUUID } from "expo-crypto";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TextInput, Image, Alert } from "react-native";
 import Button from "@components/Button";
+import Colors from "@constants/Colors";
 import { defaultPizzaImage } from "@components/ProductListItem";
-import Colors from "@/src/constants/Colors";
+import { supabase } from "@lib/supabase";
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -11,6 +13,8 @@ import {
   useUpdateProduct,
   useDeleteProduct,
 } from "@api/products";
+import * as FileSystem from "expo-file-system";
+import { decode } from "base64-arraybuffer";
 
 const CreateProductScreen = () => {
   const [name, setName] = useState("");
@@ -65,12 +69,12 @@ const CreateProductScreen = () => {
     }
   };
 
-  const onUpdate = () => {
+  const onUpdate = async () => {
     if (!validateInput()) {
       return;
     }
 
-    console.info("Updating product");
+    const imagePath = await uploadImage();
 
     // Save in DB
     updateProduct(
@@ -78,7 +82,7 @@ const CreateProductScreen = () => {
         id,
         name,
         price: parseFloat(price),
-        image,
+        image: imagePath,
       },
       {
         onSuccess: () => {
@@ -89,17 +93,19 @@ const CreateProductScreen = () => {
     );
   };
 
-  const onCreate = () => {
+  const onCreate = async () => {
     if (!validateInput()) {
       return;
     }
+
+    const imagePath = await uploadImage();
 
     // Save in DB
     insertProduct(
       {
         name,
         price: parseFloat(price),
-        image,
+        image: imagePath,
       },
       {
         onSuccess: () => {
@@ -119,7 +125,7 @@ const CreateProductScreen = () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [4, 3],
       quality: 0.5,
     });
@@ -133,7 +139,7 @@ const CreateProductScreen = () => {
     deleteProduct(id, {
       onSuccess: () => {
         resetFields();
-        router.replace('/(admin)');
+        router.replace("/(admin)");
       },
     });
   };
@@ -149,6 +155,29 @@ const CreateProductScreen = () => {
         onPress: onDelete,
       },
     ]);
+  };
+
+  const uploadImage = async () => {
+    if (!image?.startsWith("file://")) {
+      return;
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: "base64",
+    });
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, decode(base64), { contentType });
+
+    if (error) {
+      console.error('ERROR', error);
+    }
+
+    if (data) {
+      return data.path;
+    }
   };
 
   return (

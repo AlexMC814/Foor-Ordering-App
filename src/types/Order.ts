@@ -1,7 +1,5 @@
-import { Product, PizzaSize } from "./CartItem";
 import { Tables } from "./tables";
 
-export type OrderStatus = "New" | "Cooking" | "Delivering" | "Delivered";
 
 export const OrderStatusList: OrderStatus[] = [
   "New",
@@ -10,6 +8,6 @@ export const OrderStatusList: OrderStatus[] = [
   "Delivered",
 ];
 
-export type OrderItem = Tables<'order_items'>;
-
+export type OrderStatus = "New" | "Cooking" | "Delivering" | "Delivered";
 export type Order = Tables<"orders">;
+export type OrderItem = Tables<'order_items'>;

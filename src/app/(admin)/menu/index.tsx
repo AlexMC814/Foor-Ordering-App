@@ -13,6 +13,10 @@ export default function MenuScreen() {
     return <Text>Failed to fetch products</Text>;
   }
 
+  if (!isLoading && !products?.length) {
+    return <Text>No products found</Text>;
+  }
+
   return (
     <FlatList
       data={products}

@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, Text } from "react-native";
-import OrderListItem from "@/src/components/OrderListItem";
+import OrderListItem from "@components/OrderListItem";
 import { useAdminOrderList } from "@api/orders";
 
 export default function MenuScreen() {

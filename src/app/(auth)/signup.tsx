@@ -20,7 +20,7 @@ const SignUpScreen = () => {
       password,
     });
 
-    if (error) Alert.alert(error.message);
+    if (error) Alert.alert('ERROR', error.message);
 
     setLoading(false);
   }

@@ -13,6 +13,7 @@ import Button from "@components/Button";
 import { useCart } from "@providers/CartProvider";
 import { PizzaSize } from "@models/CartItem";
 import { useProduct } from "@api/products";
+import RemoteImage from "@/src/components/RemoteImage";
 
 const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
 
@@ -44,9 +45,10 @@ const ProductDetailsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: product.name }} />
-      <Image
-        source={{ uri: product.image || defaultPizzaImage }}
+      <Stack.Screen options={{ title: product?.name }} />
+      <RemoteImage
+        path={product?.image}
+        fallback={defaultPizzaImage}
         style={styles.image}
       />
       <Text>Select Size</Text>
@@ -73,7 +75,7 @@ const ProductDetailsScreen = () => {
           </Pressable>
         ))}
       </View>
-      <Text style={styles.price}>${product.price}</Text>
+      <Text style={styles.price}>${product?.price}</Text>
       <Button onPress={addToCart} text="Add to cart" />
     </View>
   );

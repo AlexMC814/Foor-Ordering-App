@@ -1,14 +1,31 @@
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  MaterialTopTabNavigationEventMap,
+  MaterialTopTabNavigationOptions,
+  createMaterialTopTabNavigator,
+} from "@react-navigation/material-top-tabs";
 import { withLayoutContext } from "expo-router";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 
-const TopTabs = withLayoutContext(createMaterialTopTabNavigator().Navigator);
+const { Navigator } = createMaterialTopTabNavigator();
+
+const TopTabs = withLayoutContext<
+  MaterialTopTabNavigationOptions,
+  typeof Navigator,
+  TabNavigationState<ParamListBase>,
+  MaterialTopTabNavigationEventMap
+>(Navigator);
 
 export default function OrderListTabNavigator() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "white" }}>
-      <TopTabs>
-        <TopTabs.Screen name='index' options={{ title: 'active' }} />
+      <TopTabs
+        screenOptions={{
+          swipeEnabled: true,
+        }}
+      >
+        <TopTabs.Screen name="index" options={{ title: "Active" }} />
+        <TopTabs.Screen name="archive" options={{ title: "Archive" }} />
       </TopTabs>
     </SafeAreaView>
   );

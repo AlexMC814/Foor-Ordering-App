@@ -5,13 +5,16 @@ import {
   useEffect,
   useState,
 } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@lib/supabase";
 import { Session } from "@supabase/supabase-js";
+import { Tables } from "../types/tables";
+
+type Profile = Tables<'profiles'>;
 
 interface AuthData {
   session: Session | null;
   loading: boolean;
-  profile: any;
+  profile: Profile | null;
   isAdmin: boolean;
 }
 
@@ -24,7 +27,7 @@ const AuthContext = createContext<AuthData>({
 
 export default function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +35,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       setSession(session);
 
       if (session) {
@@ -41,14 +45,13 @@ export default function AuthProvider({ children }: PropsWithChildren) {
           .select("*")
           .eq("id", session.user.id)
           .single();
-
         setProfile(data || null);
       }
 
       setLoading(false);
     };
-    fetchSession();
 
+    fetchSession();
     supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });

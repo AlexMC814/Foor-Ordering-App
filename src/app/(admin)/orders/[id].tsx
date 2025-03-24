@@ -12,6 +12,7 @@ import OrderListItem from "@components/OrderListItem";
 import OrderItemListItems from "@components/OrderItemListItems";
 import Colors from "@constants/Colors";
 import { useOrderDetails, useUpdateOrder } from "@api/orders";
+import { notifyUserAboutOrderUpdate } from "@lib/notifications";
 
 const OrderDetailsScreen = () => {
   const { id: orderId } = useLocalSearchParams();
@@ -25,12 +26,13 @@ const OrderDetailsScreen = () => {
     return <ActivityIndicator />;
   }
 
-  if (error || !order) {
+  if (error) {
     return <Text>Failed to fetch order details</Text>;
   }
 
-  const updateStatus = (status: string) => {
+  const updateStatus = async (status: string) => {
     updateOrder({ id, updatedFields: { status } });
+    await notifyUserAboutOrderUpdate({ ...order, status });
   };
 
   return (
